@@ -57,7 +57,7 @@ const account4 = {
 
 const accounts = [account1, account2, account3, account4];
 
-const movements = [0];
+const movements = [1000];
 
 
 
@@ -67,10 +67,12 @@ const displayMovements = function (movements) {
 
   movements.forEach((mov, i) => {
 
+    let type = mov > 0 ? 'deposit' : 'withdrawal'
+
     let html = `
     
       <div class="movements__row">
-        <div class="movements__type movements__type--deposit">${i + 1} deposit</div>
+        <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
         <div class="movements__date">3 days ago</div>
         <div class="movements__value">${mov}€</div>
       </div>
@@ -83,6 +85,32 @@ const displayMovements = function (movements) {
 displayMovements(movements)
 
 
+const displayBalance = movements => {
+
+  let balance = movements.reduce((acc, cur) => acc + cur)
+
+  labelBalance.textContent = `${balance}€`
+
+
+}
+
+displayBalance(movements)
+
+
+const displaySum = movements => {
+
+  let balance = movements.reduce((acc, cur) => acc + cur)
+  labelSumIn.textContent = `${balance}€`
+
+  let out = movements.filter(mov => mov < 0).reduce((acc, cur) => acc + cur, 0)
+
+  labelSumOut.textContent = `${out}€`
+
+}
+
+
+
+
 
 
 btnLoan.addEventListener('click', e => {
@@ -92,9 +120,8 @@ btnLoan.addEventListener('click', e => {
 
   movements.push(amount)
 
-  displayMovements(movements)
+  bal(movements)
 
-  displayBalance(movements)
 
   inputLoanAmount.value = ''
 
@@ -106,11 +133,20 @@ btnTransfer.addEventListener('click', e => {
 
   let amount = Number(inputTransferAmount.value)
 
-  movements.push(-amount)
+  let balance = movements.reduce((acc, cur) => acc + cur)
 
-  displayMovements(movements)
 
-  displayBalance(movements)
+  if (amount > 0 && balance > amount) {
+    movements.push(-amount)
+
+    displayMovements(movements)
+
+    displayBalance(movements)
+
+    displaySum(movements)
+  }
+
+
 
   inputTransferAmount.value = ''
 
@@ -121,15 +157,4 @@ btnTransfer.addEventListener('click', e => {
 
 
 
-const displayBalance = movements => {
-
-  let balance = movements.reduce((acc, cur) => acc + cur)
-
-  labelBalance.textContent = `${balance} euro`
-
-}
-
-
-
-displayBalance(movements)
 
